@@ -1,18 +1,23 @@
 import { apiClient } from './apiClient'
 import { z, type infer as Infer } from 'zod'
 
+const nullableStringToUndefined = z
+  .string()
+  .nullish()
+  .transform((value) => value ?? undefined)
+
 const dailySchema = z.object({
   date: z.string(),
   temperatureC: z.number(),
   temperatureF: z.number(),
   summary: z.string(),
-  icon: z.string().optional()
+  icon: nullableStringToUndefined
 })
 
 const forecastSchema = z.object({
   location: z.object({
     city: z.string(),
-    region: z.string().optional(),
+    region: nullableStringToUndefined,
     country: z.string(),
     latitude: z.number(),
     longitude: z.number()
