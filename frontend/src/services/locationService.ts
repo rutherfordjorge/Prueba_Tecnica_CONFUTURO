@@ -3,7 +3,10 @@ import { z, type infer as Infer } from 'zod'
 
 const locationSchema = z.object({
   city: z.string(),
-  region: z.string().optional(),
+  region: z
+    .string()
+    .nullish()
+    .transform((value) => value ?? undefined),
   country: z.string(),
   latitude: z.number(),
   longitude: z.number()
