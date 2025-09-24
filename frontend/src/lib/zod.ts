@@ -4,6 +4,8 @@ export interface Schema<T> {
   parse(input: unknown): T
   optional(): Schema<T | undefined>
   nullable(): Schema<T | null>
+  nullish(): Schema<T | null | undefined>
+  transform<U>(mapper: (value: T) => U): Schema<U>
 }
 
 function createSchema<T>(parser: Parser<T>): Schema<T> {
@@ -11,7 +13,7 @@ function createSchema<T>(parser: Parser<T>): Schema<T> {
     parse: parser,
     optional(): Schema<T | undefined> {
       return createSchema(input => {
-        if (input === undefined) return undefined
+        if (input === undefined) return undefined as T | undefined
         return parser(input)
       })
     },
@@ -20,6 +22,17 @@ function createSchema<T>(parser: Parser<T>): Schema<T> {
         if (input === null) return null
         return parser(input)
       })
+    },
+    nullish(): Schema<T | null | undefined> {
+      return createSchema(input => {
+        if (input === undefined || input === null) {
+          return input as T | null | undefined
+        }
+        return parser(input)
+      })
+    },
+    transform<U>(mapper: (value: T) => U): Schema<U> {
+      return createSchema(input => mapper(parser(input)))
     }
   }
 }
