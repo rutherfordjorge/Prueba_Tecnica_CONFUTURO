@@ -1,34 +1,71 @@
-# Prueba_Tecnica_CONFUTURO
-Desarrollar una aplicación que muestre la información del clima de los últimos 7 días, detectando la ubicación del usuario de manera automática
+# 📦 Prueba Técnica – CONFUTURO
 
-Requerimientos funcionales 
+Desarrollar una aplicación que muestre la información del clima de los últimos 7 días, detectando la ubicación del usuario de manera automática.
 
-Frontend: 
+---
 
-Desarrollado en React con typescript. 
+## ✅ Requerimientos Funcionales
 
-Debe implementar useContext para la gestión de estado global. 
+### 🌐 Frontend
 
-Mostrar la información del clima correspondiente a la ubicación detectada. 
+- Desarrollado en **React** con **TypeScript**.
+- Debe implementar `useContext` para la gestión de estado global.
+- Mostrar la información del clima correspondiente a la ubicación detectada.
 
-Backend: 
+### ⚙️ Backend
 
-Desarrollado en C# .NET Core. 
+- Desarrollado en **C# .NET Core**.
+- Actuar como intermediario entre el frontend y las APIs externas.
 
-Actuar como intermediario entre el frontend y las APIs externas. 
+---
 
-APIs a utilizar: 
+## 🔗 APIs a Utilizar
 
-Clima: OpenWeatherMap. 
+### ☁️ Clima
 
-Si conoces otra API totalmente gratuita que entregue la misma información, también puedes usarla. 
+- API principal sugerida: **[OpenWeatherMap](https://openweathermap.org/api)**
+- Puedes utilizar otra API **totalmente gratuita** que entregue la misma información.
 
-Geolocalización: ipgeolocation.io. 
+### 📍 Geolocalización
 
-Si conoces otra opción gratuita que cumpla el mismo propósito, también es válida. 
+- API sugerida: **[ipgeolocation.io](https://ipgeolocation.io/)**
+- Se acepta cualquier alternativa gratuita que cumpla el mismo propósito.
 
-Consideraciones técnicas 
+---
 
-La aplicación debe tener una buena arquitectura (organización clara de carpetas, separación de responsabilidades y código mantenible). 
+## 🧱 Consideraciones Técnicas
 
-El backend debe ser la única capa que interactúe con las APIs externas (el frontend no debe consumir directamente las APIs de terceros). 
+- La aplicación debe tener **una buena arquitectura**:
+  - Organización clara de carpetas.
+  - Separación de responsabilidades.
+  - Código limpio y mantenible.
+
+- El **backend** debe ser la **única capa que interactúe con las APIs externas**.  
+  El frontend **no debe** consumir directamente servicios de terceros.
+
+---
+
+## 📂 Estructura sugerida (opcional)
+```plaintext
+Prueba_Tecnica_CONFUTURO/
+├── backend/
+│   ├── Controllers/
+│   ├── Services/
+│   ├── Models/
+│   ├── WeatherApi/
+│   ├── GeolocationApi/
+│   ├── Program.cs
+│   ├── Startup.cs
+│   └── PruebaTecnicaConfuturo.csproj
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── services/
+│       ├── hooks/
+│       ├── App.tsx
+│       └── main.tsx
+├── README.md
+├── .gitignore
+└── LICENSE
