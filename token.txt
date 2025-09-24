@@ -1,0 +1,2 @@
+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
+git clone https://rutherfordjorge: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@github.com/rutherfordjorge/Prueba_Tecnica_CONFUTURO.git
