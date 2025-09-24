@@ -1,35 +1,58 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using PruebaTecnicaConfuturo.Domain.Entities;
+using PruebaTecnicaConfuturo.Domain.ValueObjects;
 using PruebaTecnicaConfuturo.Interfaces;
-using PruebaTecnicaConfuturo.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using PruebaTecnicaConfuturo.Models.Dtos;
+using PruebaTecnicaConfuturo.Models.Requests;
 
-namespace PruebaTecnicaConfuturo.Controllers
+namespace PruebaTecnicaConfuturo.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public sealed class WeatherController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class WeatherController : ControllerBase
+    private readonly IWeatherService _weatherService;
+    private readonly IGeolocationService _geolocationService;
+    private readonly IValidator<WeatherForecastRequest> _validator;
+
+    public WeatherController(
+        IWeatherService weatherService,
+        IGeolocationService geolocationService,
+        IValidator<WeatherForecastRequest> validator)
     {
-        private readonly IWeatherService _weatherService;
-        private readonly IGeolocationService _geolocationService;
+        _weatherService = weatherService;
+        _geolocationService = geolocationService;
+        _validator = validator;
+    }
 
-        public WeatherController(IWeatherService weatherService, IGeolocationService geolocationService)
+    [HttpGet("forecast")]
+    [ProducesResponseType(typeof(ForecastResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetForecastAsync([FromQuery] WeatherForecastRequest request, CancellationToken cancellationToken = default)
+    {
+        var validation = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
         {
-            _weatherService = weatherService;
-            _geolocationService = geolocationService;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<WeatherForecast>>> Get()
-        {
-            var location = _geolocationService.GetCurrentLocation();
-            var forecast = await _weatherService.GetForecastAsync();
-
-            return Ok(new
+            foreach (var error in validation.Errors)
             {
-                Location = location,
-                Forecast = forecast
-            });
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+
+            return ValidationProblem(ModelState);
         }
+
+        var location = request.HasCoordinates
+            ? new Location
+            {
+                City = "Ubicación personalizada",
+                Region = null,
+                Country = string.Empty,
+                Coordinates = new Coordinates(request.Latitude!.Value, request.Longitude!.Value)
+            }
+            : await _geolocationService.ResolveCurrentLocationAsync(cancellationToken);
+
+        var report = await _weatherService.GetForecastAsync(location, cancellationToken);
+        return Ok(ForecastResponseDto.FromDomain(report));
     }
 }

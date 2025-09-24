@@ -1,42 +1,160 @@
+:root {
+  color-scheme: light dark;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #0b1120;
+  color: #e5e7eb;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, rgba(59, 130, 246, 0.35), transparent 60%),
+    radial-gradient(circle at bottom, rgba(16, 185, 129, 0.25), transparent 70%);
+}
+
 #root {
-  max-width: 1280px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 2.5rem 1.5rem 4rem;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.app__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.app__header h1 {
+  margin: 0;
+  font-size: 2.4rem;
+}
+
+.app__subtitle {
+  margin: 0.25rem 0 0;
+  color: #cbd5f5;
+  font-weight: 500;
+}
+
+.app__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.app__button {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.25);
+}
+
+.app__status {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: rgba(37, 99, 235, 0.2);
+  border-radius: 12px;
+}
+
+.app__status--error {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.app__summary {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(4px);
+}
+
+.app__summary h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.weather-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.weather-card {
+  background: rgba(15, 23, 42, 0.75);
+  border-radius: 16px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(30, 64, 175, 0.35);
+}
+
+.weather-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.weather-card__day {
+  font-size: 1.1rem;
+  text-transform: capitalize;
+}
+
+.weather-card__icon {
+  width: 64px;
+  height: 64px;
+}
+
+.weather-card__temperature {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.weather-card__temperature--primary {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.weather-card__temperature--secondary {
+  font-size: 1rem;
+  color: #93c5fd;
+}
+
+.weather-card__summary {
+  margin: 0;
+  color: #dbeafe;
+}
+
+@media (max-width: 768px) {
+  .app__header {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  to {
-    transform: rotate(360deg);
+
+  .app__actions {
+    width: 100%;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .app__button {
+    width: 100%;
+    text-align: center;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }

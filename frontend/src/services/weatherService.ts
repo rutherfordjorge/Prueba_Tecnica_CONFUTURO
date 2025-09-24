@@ -1,24 +1,30 @@
-// frontend/src/services/weatherService.ts
+import { apiClient } from './apiClient'
+import { z, type infer as Infer } from 'zod'
 
-// 👇 INTERFAZ EXPORTADA
-export interface WeatherForecast {
-  date: string
-  temperatureC: number
-  temperatureF: number
-  summary: string
-}
+const dailySchema = z.object({
+  date: z.string(),
+  temperatureC: z.number(),
+  temperatureF: z.number(),
+  summary: z.string(),
+  icon: z.string().optional()
+})
 
-// 👇 FUNCIÓN EXPORTADA
-export async function fetchWeather(): Promise<WeatherForecast[]> {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL
-  if (!baseUrl) {
-    throw new Error("⚠️ VITE_API_BASE_URL no está definida en .env")
-  }
+const forecastSchema = z.object({
+  location: z.object({
+    city: z.string(),
+    region: z.string().optional(),
+    country: z.string(),
+    latitude: z.number(),
+    longitude: z.number()
+  }),
+  daily: z.array(dailySchema)
+})
 
-  const res = await fetch(`${baseUrl}/weather`)
-  if (!res.ok) {
-    throw new Error("⚠️ Error al obtener el clima")
-  }
+export type ForecastResponse = Infer<typeof forecastSchema>
+export type DailyForecast = Infer<typeof dailySchema>
 
-  return res.json()
+export async function fetchForecast(lat?: number, lon?: number): Promise<ForecastResponse> {
+  const query = lat !== undefined && lon !== undefined ? `?latitude=${lat}&longitude=${lon}` : ''
+  const response = await apiClient.get<ForecastResponse>(`/weather/forecast${query}`)
+  return forecastSchema.parse(response.data)
 }
