@@ -1,7 +1,8 @@
-namespace PruebaTecnicaConfuturo.Interfaces
+using PruebaTecnicaConfuturo.Domain.Entities;
+
+namespace PruebaTecnicaConfuturo.Interfaces;
+
+public interface IGeolocationService
 {
-    public interface IGeolocationService
-    {
-        string GetCurrentLocation();
-    }
+    Task<Location> ResolveCurrentLocationAsync(CancellationToken cancellationToken = default);
 }

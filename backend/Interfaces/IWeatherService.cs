@@ -1,11 +1,9 @@
-using PruebaTecnicaConfuturo.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using PruebaTecnicaConfuturo.Domain.Aggregates;
+using PruebaTecnicaConfuturo.Domain.Entities;
 
-namespace PruebaTecnicaConfuturo.Interfaces
+namespace PruebaTecnicaConfuturo.Interfaces;
+
+public interface IWeatherService
 {
-    public interface IWeatherService
-    {
-        Task<IEnumerable<WeatherForecast>> GetForecastAsync();
-    }
+    Task<ForecastReport> GetForecastAsync(Location location, CancellationToken cancellationToken = default);
 }
