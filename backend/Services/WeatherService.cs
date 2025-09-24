@@ -38,6 +38,39 @@ public sealed class WeatherService : IWeatherService
 
         var client = _httpClientFactory.CreateClient(HttpClientName);
 
+        try
+        {
+            var upcoming = await FetchUpcomingAsync(client, location, cancellationToken);
+            var historical = await FetchHistoricalAsync(client, location, cancellationToken);
+
+            if (!upcoming.Any())
+            {
+                _logger.LogWarning("Weather API no retornó datos diarios futuros. Retornando pronóstico simulado.");
+                return ForecastReport.CreateFallback(location);
+            }
+
+            if (!historical.Any())
+            {
+                _logger.LogWarning("Weather API no retornó datos históricos. Retornando pronóstico simulado.");
+                return ForecastReport.CreateFallback(location);
+            }
+
+            return new ForecastReport
+            {
+                Location = location,
+                Daily = upcoming,
+                Historical = historical
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al consultar la Weather API. Se utilizará un pronóstico simulado.");
+            return ForecastReport.CreateFallback(location);
+        }
+    }
+
+    private async Task<IReadOnlyCollection<DailyWeather>> FetchUpcomingAsync(HttpClient client, Location location, CancellationToken cancellationToken)
+    {
         var query = new Dictionary<string, string?>
         {
             ["lat"] = location.Coordinates.Latitude.ToString(CultureInfo.InvariantCulture),
@@ -54,45 +87,88 @@ public sealed class WeatherService : IWeatherService
             Query = string.Join("&", query.Select(kvp => $"{kvp.Key}={kvp.Value}"))
         };
 
-        try
+        var response = await client.GetAsync(uriBuilder.Uri, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<OpenWeatherOneCallResponse>(cancellationToken: cancellationToken);
+        if (payload is null)
         {
-            var response = await client.GetAsync(uriBuilder.Uri, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            return Array.Empty<DailyWeather>();
+        }
 
-            var payload = await response.Content.ReadFromJsonAsync<OpenWeatherOneCallResponse>(cancellationToken: cancellationToken);
-            if (payload is null)
+        return payload.Daily
+            .Take(7)
+            .Select(day => new DailyWeather
             {
-                _logger.LogWarning("Respuesta vacía desde Weather API. Retornando pronóstico simulado.");
-                return ForecastReport.CreateFallback(location);
-            }
+                Date = DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(day.Dt).Date),
+                Temperature = new Temperature(Math.Round(day.Temperature.Day, 1)),
+                Summary = day.Weather.FirstOrDefault()?.Description ?? "Sin descripción",
+                Icon = day.Weather.FirstOrDefault()?.Icon
+            })
+            .ToList();
+    }
 
-            var daily = payload.Daily
-                .Take(7)
-                .Select(day => new DailyWeather
-                {
-                    Date = DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(day.Dt).Date),
-                    Temperature = new Temperature(Math.Round(day.Temperature.Day, 1)),
-                    Summary = day.Weather.FirstOrDefault()?.Description ?? "Sin descripción",
-                    Icon = day.Weather.FirstOrDefault()?.Icon
-                })
-                .ToList();
+    private async Task<IReadOnlyCollection<DailyWeather>> FetchHistoricalAsync(HttpClient client, Location location, CancellationToken cancellationToken)
+    {
+        var baseUri = client.BaseAddress ?? new Uri(_options.BaseUrl!);
+        var dates = Enumerable.Range(1, 7)
+            .Select(offset => DateTimeOffset.UtcNow.Date.AddDays(-offset).AddHours(12))
+            .ToArray();
 
-            if (!daily.Any())
+        var tasks = dates.Select(async date =>
+        {
+            var query = new Dictionary<string, string?>
             {
-                _logger.LogWarning("Weather API no retornó datos diarios. Retornando pronóstico simulado.");
-                return ForecastReport.CreateFallback(location);
-            }
-
-            return new ForecastReport
-            {
-                Location = location,
-                Daily = daily
+                ["lat"] = location.Coordinates.Latitude.ToString(CultureInfo.InvariantCulture),
+                ["lon"] = location.Coordinates.Longitude.ToString(CultureInfo.InvariantCulture),
+                ["dt"] = date.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
+                ["appid"] = _options.ApiKey,
+                ["units"] = _options.Units,
+                ["lang"] = _options.Language
             };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al consultar la Weather API. Se utilizará un pronóstico simulado.");
-            return ForecastReport.CreateFallback(location);
-        }
+
+            var uriBuilder = new UriBuilder(baseUri)
+            {
+                Path = "data/3.0/onecall/timemachine",
+                Query = string.Join("&", query.Select(kvp => $"{kvp.Key}={kvp.Value}"))
+            };
+
+            try
+            {
+                var response = await client.GetAsync(uriBuilder.Uri, cancellationToken);
+                response.EnsureSuccessStatusCode();
+
+                var payload = await response.Content.ReadFromJsonAsync<OpenWeatherTimeMachineResponse>(cancellationToken: cancellationToken);
+                if (payload?.Data is null || payload.Data.Count == 0)
+                {
+                    return null;
+                }
+
+                var averageTemperature = Math.Round(payload.Data.Average(item => item.Temperature), 1);
+                var weatherDescription = payload.Data
+                    .SelectMany(item => item.Weather)
+                    .FirstOrDefault();
+
+                return new DailyWeather
+                {
+                    Date = DateOnly.FromDateTime(date.Date),
+                    Temperature = new Temperature(averageTemperature),
+                    Summary = weatherDescription?.Description ?? "Sin descripción",
+                    Icon = weatherDescription?.Icon
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "No se pudo obtener el clima histórico para {Date}", date.Date.ToShortDateString());
+                return null;
+            }
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results
+            .Where(item => item is not null)
+            .Select(item => item!)
+            .OrderBy(item => item.Date)
+            .ToList();
     }
 }

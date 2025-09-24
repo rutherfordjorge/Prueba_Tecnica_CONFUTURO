@@ -22,7 +22,8 @@ const forecastSchema = z.object({
     latitude: z.number(),
     longitude: z.number()
   }),
-  daily: z.array(dailySchema)
+  daily: z.array(dailySchema),
+  historical: z.array(dailySchema)
 })
 
 export type ForecastResponse = Infer<typeof forecastSchema>
