@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 using PruebaTecnicaConfuturo.Interfaces;
 using PruebaTecnicaConfuturo.Models.Options;
 using PruebaTecnicaConfuturo.Models.Requests;
@@ -39,6 +40,11 @@ builder.Services.AddScoped<ValidationFilter>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
 });
 
 builder.Services.AddCors(options =>
