@@ -112,7 +112,7 @@ public sealed class WeatherService : IWeatherService
     {
         var baseUri = client.BaseAddress ?? new Uri(_options.BaseUrl!);
         var dates = Enumerable.Range(1, 7)
-            .Select(offset => DateTimeOffset.UtcNow.Date.AddDays(-offset).AddHours(12))
+            .Select(offset => new DateTimeOffset(DateTime.UtcNow.Date.AddDays(-offset).AddHours(12), TimeSpan.Zero))
             .ToArray();
 
         var tasks = dates.Select(async date =>
