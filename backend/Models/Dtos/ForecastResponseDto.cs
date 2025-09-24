@@ -7,11 +7,13 @@ public sealed record ForecastResponseDto
 {
     public required LocationDto Location { get; init; }
     public required IReadOnlyCollection<DailyWeatherDto> Daily { get; init; }
+    public required IReadOnlyCollection<DailyWeatherDto> Historical { get; init; }
 
     public static ForecastResponseDto FromDomain(ForecastReport report) => new()
     {
         Location = LocationDto.FromDomain(report.Location),
         Daily = report.Daily.Select(DailyWeatherDto.FromDomain).ToList(),
+        Historical = report.Historical.Select(DailyWeatherDto.FromDomain).ToList(),
     };
 
     public sealed record LocationDto

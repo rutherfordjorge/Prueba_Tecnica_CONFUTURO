@@ -43,6 +43,11 @@ function App() {
             </p>
           </section>
           <WeatherList items={forecast.daily} />
+          <section className="app__summary">
+            <h2>Histórico de los últimos 7 días</h2>
+            <p>Datos recopilados para la misma ubicación detectada automáticamente.</p>
+          </section>
+          <WeatherList items={forecast.historical} />
         </>
       )}
     </main>

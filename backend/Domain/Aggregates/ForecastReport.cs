@@ -7,6 +7,7 @@ public sealed record ForecastReport
 {
     public required Location Location { get; init; }
     public required IReadOnlyCollection<DailyWeather> Daily { get; init; }
+    public required IReadOnlyCollection<DailyWeather> Historical { get; init; }
 
     public static ForecastReport CreateFallback(Location location)
     {
@@ -17,7 +18,7 @@ public sealed record ForecastReport
             "Despejado", "Parcialmente nublado", "Lluvia ligera", "Tormenta", "Nublado"
         };
 
-        var items = Enumerable.Range(0, 7)
+        var upcoming = Enumerable.Range(0, 7)
             .Select(offset => new DailyWeather
             {
                 Date = today.AddDays(offset),
@@ -27,10 +28,22 @@ public sealed record ForecastReport
             })
             .ToList();
 
+        var historical = Enumerable.Range(1, 8)
+            .Select(offset => new DailyWeather
+            {
+                Date = today.AddDays(-offset),
+                Temperature = new Temperature(random.Next(8, 28)),
+                Summary = summaries[(offset + 2) % summaries.Length],
+                Icon = "02n"
+            })
+            .OrderBy(item => item.Date)
+            .ToList();
+
         return new ForecastReport
         {
             Location = location,
-            Daily = items
+            Daily = upcoming,
+            Historical = historical
         };
     }
 }
