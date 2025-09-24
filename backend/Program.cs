@@ -1,11 +1,11 @@
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Options;
 using PruebaTecnicaConfuturo.Interfaces;
 using PruebaTecnicaConfuturo.Models.Options;
 using PruebaTecnicaConfuturo.Models.Requests;
 using PruebaTecnicaConfuturo.Services;
 using PruebaTecnicaConfuturo.Validators;
+using PruebaTecnicaConfuturo.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,10 +34,12 @@ builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IGeolocationService, GeolocationService>();
 
 builder.Services.AddScoped<IValidator<WeatherForecastRequest>, WeatherForecastRequestValidator>();
+builder.Services.AddScoped<ValidationFilter>();
 
-builder.Services.AddControllers();
-
-builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+});
 
 builder.Services.AddCors(options =>
 {
