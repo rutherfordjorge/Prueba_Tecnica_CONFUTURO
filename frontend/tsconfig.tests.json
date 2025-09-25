@@ -13,12 +13,7 @@
     "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "types": ["vite/client"],
-    "paths": {
-      "axios": ["./src/lib/axios"],
-      "classnames": ["./src/lib/classnames"],
-      "zod": ["./src/lib/zod"]
-    }
+    "types": ["vite/client"]
   },
   "include": [
     "tests/**/*.ts",

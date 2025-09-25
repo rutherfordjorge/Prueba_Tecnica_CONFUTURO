@@ -1,13 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App'
 import { LocationProvider } from './context/LocationContext'
+import { BrowserRouter } from 'react-router-dom'
+import { AppRouter } from './routes/AppRouter'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <LocationProvider>
-      <App />
-    </LocationProvider>
+    <BrowserRouter>
+      <LocationProvider>
+        <AppRouter />
+      </LocationProvider>
+    </BrowserRouter>
   </StrictMode>,
 )

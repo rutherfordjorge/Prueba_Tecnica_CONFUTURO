@@ -69,12 +69,17 @@ Prueba_Tecnica_CONFUTURO/
 
 ## 🚀 Cómo ejecutar el proyecto
 
-### Backend (.NET 9 API)
+### Backend (.NET 8 API)
 1. Configura tus llaves en `backend/appsettings.json` o mediante variables de entorno:
    ```json
    "ExternalApis": {
      "Weather": {
-       "BaseUrl": "https://api.openweathermap.org/",
+       "ForecastBaseUrl": "https://api.open-meteo.com/",
+       "HistoricalBaseUrl": "https://archive-api.open-meteo.com/",
+       "Timezone": "auto"
+     },
+     "Geolocation": {
+       "BaseUrl": "https://api.ipgeolocation.io/",
        "ApiKey": "TU_API_KEY"
      }
    }
@@ -117,15 +122,16 @@ Prueba_Tecnica_CONFUTURO/
 
 ### Backend
 - **Domain Driven Design básico** con entidades (`Location`, `DailyWeather`) y agregados (`ForecastReport`).
-- Servicio especializado (`WeatherService`) que consume la API de Open-Meteo mediante `HttpClientFactory`.
+- Servicio especializado (`WeatherService`) que consume la API de Open-Meteo mediante `HttpClientFactory` y mapeos automáticos con **AutoMapper**.
+- Servicio de geolocalización (`GeolocationService`) que utiliza **Refit** para consultar `ipgeolocation.io`, centralizando toda interacción con servicios externos.
 - Validaciones con **FluentValidation** y manejo de errores resiliente: si la configuración es incompleta, se entrega un pronóstico simulado.
 - Endpoints RESTful con documentación automática vía Swagger (entorno Development).
 
 ### Frontend
-- Estado global mediante **Context + useReducer** para la ubicación predeterminada y las coordenadas opcionales.
-- **Custom hook `useWeather`** que coordina la obtención del pronóstico usando el contexto.
-- Componentización atómica (`WeatherCard`, `WeatherList`) y validación de respuestas con un adaptador mínimo de `zod`.
-- Cliente HTTP basado en un wrapper ligero compatible con la API de `axios`, lo que permite mantener el contrato exigido sin dependencias externas.
+- Estado global mediante **Context + useReducer** para la ubicación detectada automáticamente desde el backend.
+- **Custom hook `useWeather`** que coordina la obtención del pronóstico usando el contexto y peticiones con **axios** real.
+- Componentización atómica (`WeatherCard`, `WeatherList`) y validación de respuestas con **zod**.
+- Enrutamiento básico con **react-router-dom** y configuración de variables mediante **dotenv**.
 
 ---
 

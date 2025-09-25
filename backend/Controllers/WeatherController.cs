@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using PruebaTecnicaConfuturo.Domain.Entities;
@@ -14,13 +15,16 @@ public sealed class WeatherController : ControllerBase
 {
     private readonly IWeatherService _weatherService;
     private readonly IValidator<WeatherForecastRequest> _validator;
+    private readonly IMapper _mapper;
 
     public WeatherController(
         IWeatherService weatherService,
-        IValidator<WeatherForecastRequest> validator)
+        IValidator<WeatherForecastRequest> validator,
+        IMapper mapper)
     {
         _weatherService = weatherService;
         _validator = validator;
+        _mapper = mapper;
     }
 
     [HttpGet("forecast")]
@@ -50,6 +54,7 @@ public sealed class WeatherController : ControllerBase
             : Location.CreateFallback();
 
         var report = await _weatherService.GetForecastAsync(location, cancellationToken);
-        return Ok(ForecastResponseDto.FromDomain(report));
+        var dto = _mapper.Map<ForecastResponseDto>(report);
+        return Ok(dto);
     }
 }

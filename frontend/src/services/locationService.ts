@@ -1,3 +1,6 @@
+import { z } from 'zod'
+import { apiClient } from './apiClient'
+
 export type LocationDto = {
   city: string
   region?: string
@@ -14,42 +17,25 @@ const fallbackLocation: LocationDto = {
   longitude: -70.6693
 }
 
-function hasGeolocation(): boolean {
-  return typeof navigator !== 'undefined' && 'geolocation' in navigator
-}
-
-function fromGeolocationPosition(position: GeolocationPosition): LocationDto {
-  const { latitude, longitude } = position.coords
-
-  return {
-    city: 'Ubicación detectada',
-    region: undefined,
-    country: '',
-    latitude,
-    longitude
-  }
-}
-
-function resolveWithFallback(resolve: (value: LocationDto) => void) {
-  resolve({ ...fallbackLocation })
-}
+const locationSchema = z.object({
+  city: z.string(),
+  region: z
+    .string()
+    .nullish()
+    .transform((value) => value ?? undefined),
+  country: z.string(),
+  latitude: z.number(),
+  longitude: z.number()
+})
 
 export async function fetchLocation(): Promise<LocationDto> {
-  if (!hasGeolocation()) {
-    return { ...fallbackLocation }
+  try {
+    const response = await apiClient.get<LocationDto>('/location/resolve')
+    return locationSchema.parse(response.data)
+  } catch (error) {
+    console.error('Failed to resolve location from backend', error)
+    throw error
   }
-
-  return await new Promise<LocationDto>((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => resolve(fromGeolocationPosition(position)),
-      () => resolveWithFallback(resolve),
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 5 * 60 * 1000
-      }
-    )
-  })
 }
 
 export function getDefaultLocation(): LocationDto {
