@@ -18,7 +18,7 @@ public sealed record ForecastReport
             "Despejado", "Parcialmente nublado", "Lluvia ligera", "Tormenta", "Nublado"
         };
 
-        var upcoming = Enumerable.Range(0, 7)
+        var upcoming = Enumerable.Range(0, 8)
             .Select(offset => new DailyWeather
             {
                 Date = today.AddDays(offset),

@@ -1,11 +1,72 @@
+import { useMemo } from 'react'
 import { useLocationContext } from './context/LocationContext'
 import { WeatherList } from './components/WeatherList'
 import { useWeather } from './hooks/useWeather'
 import './App.css'
 
+const parseDateString = (value: string) => {
+  const [year, month, day] = value.split('-').map(Number)
+
+  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+    return new Date(value)
+  }
+
+  const date = new Date(year, month - 1, day)
+  date.setHours(0, 0, 0, 0)
+  return date
+}
+
 function App() {
   const { status: locationStatus, error: locationError, refetch } = useLocationContext()
   const { status: weatherStatus, forecast, error: weatherError, refresh } = useWeather()
+
+  const { todayForecast, upcomingForecast, historicalForecast } = useMemo(() => {
+    if (!forecast) {
+      return { todayForecast: undefined, upcomingForecast: [], historicalForecast: [] }
+    }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    const fiveDaysAgo = new Date(today)
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5)
+
+    const sortByDate = (a: { date: string }, b: { date: string }) =>
+      parseDateString(a.date).getTime() - parseDateString(b.date).getTime()
+
+    const sortedDaily = [...forecast.daily].sort(sortByDate)
+
+    const exactToday = sortedDaily.find(item => parseDateString(item.date).getTime() === today.getTime())
+    const todayItem =
+      exactToday ??
+      sortedDaily.find(item => parseDateString(item.date).getTime() > today.getTime()) ??
+      sortedDaily.at(0)
+
+    const upcomingItems = sortedDaily
+      .filter(item => parseDateString(item.date) >= tomorrow)
+      .slice(0, 7)
+
+    const historicalItems = [...forecast.historical]
+      .sort(sortByDate)
+      .filter(item => {
+        const itemDate = parseDateString(item.date)
+        return itemDate <= yesterday && itemDate >= fiveDaysAgo
+      })
+
+    const limitedHistorical = historicalItems.length > 5 ? historicalItems.slice(-5) : historicalItems
+
+    return {
+      todayForecast: todayItem,
+      upcomingForecast: upcomingItems,
+      historicalForecast: limitedHistorical
+    }
+  }, [forecast])
 
   const isLoading = locationStatus === 'loading' || weatherStatus === 'loading'
   const hasError = locationStatus === 'error' || weatherStatus === 'error'
@@ -31,18 +92,42 @@ function App() {
 
       {forecast && !hasError && !isLoading && (
         <>
+          {todayForecast && (
+            <article className="app__today" aria-live="polite">
+              <header className="app__today-header">
+                <h2>Clima de hoy</h2>
+                <p>
+                  {new Intl.DateTimeFormat('es-CL', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric'
+                  }).format(parseDateString(todayForecast.date))}
+                </p>
+              </header>
+              <div className="app__today-temperature">
+                <span className="app__today-temperature--primary">
+                  {todayForecast.temperatureC.toFixed(1)}°C
+                </span>
+                <span className="app__today-temperature--secondary">
+                  {todayForecast.temperatureF.toFixed(1)}°F
+                </span>
+              </div>
+              <p className="app__today-summary">{todayForecast.summary}</p>
+            </article>
+          )}
+
           <section className="app__summary">
             <h2>Resumen de los próximos 7 días</h2>
             <p>
               Latitud: {forecast.location.latitude.toFixed(2)} | Longitud: {forecast.location.longitude.toFixed(2)}
             </p>
           </section>
-          <WeatherList items={forecast.daily} />
+          <WeatherList items={upcomingForecast} />
           <section className="app__summary">
             <h2>Histórico de los últimos 7 días</h2>
             <p>Datos recopilados para la misma ubicación detectada automáticamente.</p>
           </section>
-          <WeatherList items={forecast.historical} />
+          <WeatherList items={historicalForecast} />
         </>
       )}
     </main>

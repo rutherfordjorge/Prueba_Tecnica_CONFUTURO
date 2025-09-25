@@ -90,6 +90,58 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.app__today {
+  display: grid;
+  gap: 1rem;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(15, 23, 42, 0.85));
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 25px 50px -12px rgba(30, 64, 175, 0.35);
+}
+
+.app__today-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.app__today-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #f8fafc;
+}
+
+.app__today-header p {
+  margin: 0;
+  font-size: 1.1rem;
+  text-transform: capitalize;
+  color: #bfdbfe;
+}
+
+.app__today-temperature {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.app__today-temperature--primary {
+  font-size: 2.75rem;
+  font-weight: 700;
+}
+
+.app__today-temperature--secondary {
+  font-size: 1.25rem;
+  color: #dbeafe;
+}
+
+.app__today-summary {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #e0f2fe;
+}
+
 .weather-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
