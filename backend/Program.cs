@@ -33,6 +33,7 @@ builder.Services.AddHttpClient(GeolocationService.HttpClientName, (sp, client) =
 
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<IGeolocationService, GeolocationService>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IValidator<WeatherForecastRequest>, WeatherForecastRequestValidator>();
 builder.Services.AddScoped<ValidationFilter>();
