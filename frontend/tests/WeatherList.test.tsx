@@ -10,15 +10,13 @@ const forecastItems: DailyForecast[] = [
     date: '2024-05-01T00:00:00.000Z',
     temperatureC: 19.5,
     temperatureF: 67.1,
-    summary: 'Cielo despejado',
-    icon: '01d'
+    summary: 'Cielo despejado'
   },
   {
     date: '2024-05-02T00:00:00.000Z',
     temperatureC: 16.2,
     temperatureF: 61.2,
-    summary: 'Parcialmente nublado',
-    icon: undefined
+    summary: 'Parcialmente nublado'
   }
 ]
 
@@ -27,9 +25,6 @@ test('WeatherList renders one weather card per forecast item', () => {
 
   const articleMatches = html.match(/<article class="weather-card"/g) ?? []
   assert.strictEqual(articleMatches.length, forecastItems.length)
-
-  const iconMatches = html.match(/alt="Icono del clima"/g) ?? []
-  assert.strictEqual(iconMatches.length, 1)
 
   assert.ok(html.includes('aria-live="polite"'))
 })

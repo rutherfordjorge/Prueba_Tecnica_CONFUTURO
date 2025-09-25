@@ -10,8 +10,7 @@ const dailySchema = z.object({
   date: z.string(),
   temperatureC: z.number(),
   temperatureF: z.number(),
-  summary: z.string(),
-  icon: nullableStringToUndefined
+  summary: z.string()
 })
 
 const forecastSchema = z.object({

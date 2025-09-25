@@ -110,18 +110,12 @@ body {
 .weather-card__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: flex-start;
 }
 
 .weather-card__day {
   font-size: 1.1rem;
   text-transform: capitalize;
-}
-
-.weather-card__icon {
-  width: 64px;
-  height: 64px;
 }
 
 .weather-card__temperature {
