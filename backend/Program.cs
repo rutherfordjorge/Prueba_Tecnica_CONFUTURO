@@ -11,7 +11,6 @@ using PruebaTecnicaConfuturo.Filters;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<WeatherApiOptions>(builder.Configuration.GetSection("ExternalApis:Weather"));
-builder.Services.Configure<GeolocationApiOptions>(builder.Configuration.GetSection("ExternalApis:Geolocation"));
 
 builder.Services.AddHttpClient(WeatherService.HttpClientName, (sp, client) =>
 {
@@ -22,17 +21,7 @@ builder.Services.AddHttpClient(WeatherService.HttpClientName, (sp, client) =>
     }
 });
 
-builder.Services.AddHttpClient(GeolocationService.HttpClientName, (sp, client) =>
-{
-    var options = sp.GetRequiredService<IOptions<GeolocationApiOptions>>().Value;
-    if (!string.IsNullOrWhiteSpace(options.BaseUrl))
-    {
-        client.BaseAddress = new Uri(options.BaseUrl);
-    }
-});
-
 builder.Services.AddScoped<IWeatherService, WeatherService>();
-builder.Services.AddScoped<IGeolocationService, GeolocationService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IValidator<WeatherForecastRequest>, WeatherForecastRequestValidator>();

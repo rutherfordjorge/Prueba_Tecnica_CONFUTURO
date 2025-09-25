@@ -1,6 +1,6 @@
 # 📦 Prueba Técnica – CONFUTURO
 
-Desarrollar una aplicación que muestre la información del clima de los últimos 7 días, detectando la ubicación del usuario de manera automática.
+Desarrollar una aplicación que muestre la información del clima de los últimos 7 días para una ubicación predeterminada, permitiendo opcionalmente consultar otras coordenadas manualmente.
 
 ---
 
@@ -25,11 +25,7 @@ Desarrollar una aplicación que muestre la información del clima de los último
 
 - API principal sugerida: **[OpenWeatherMap](https://openweathermap.org/api)**
 - Puedes utilizar otra API **totalmente gratuita** que entregue la misma información.
-
-### 📍 Geolocalización
-
-- API sugerida: **[ipgeolocation.io](https://ipgeolocation.io/)**
-- Se acepta cualquier alternativa gratuita que cumpla el mismo propósito.
+- En la solución implementada se utiliza **[Open-Meteo](https://open-meteo.com/)** como proveedor único y predeterminado.
 
 ---
 
@@ -53,7 +49,6 @@ Prueba_Tecnica_CONFUTURO/
 │   ├── Services/
 │   ├── Models/
 │   ├── WeatherApi/
-│   ├── GeolocationApi/
 │   ├── Program.cs
 │   ├── Startup.cs
 │   └── PruebaTecnicaConfuturo.csproj
@@ -81,10 +76,6 @@ Prueba_Tecnica_CONFUTURO/
      "Weather": {
        "BaseUrl": "https://api.openweathermap.org/",
        "ApiKey": "TU_API_KEY"
-     },
-     "Geolocation": {
-       "BaseUrl": "https://api.ipgeolocation.io/",
-       "ApiKey": "TU_API_KEY"
      }
    }
    ```
@@ -98,8 +89,7 @@ Prueba_Tecnica_CONFUTURO/
    ```bash
    dotnet test
    ```
-4. El servicio expone por defecto los endpoints:
-   - `GET /api/location`
+4. El servicio expone por defecto el endpoint:
    - `GET /api/weather/forecast?latitude={lat}&longitude={lon}`
 
 > Si no se definen las llaves, la API responde con datos simulados para poder probar la solución sin depender de servicios externos.
@@ -127,12 +117,12 @@ Prueba_Tecnica_CONFUTURO/
 
 ### Backend
 - **Domain Driven Design básico** con entidades (`Location`, `DailyWeather`) y agregados (`ForecastReport`).
-- Servicios especializados (`WeatherService`, `GeolocationService`) que consumen APIs externas mediante `HttpClientFactory`.
+- Servicio especializado (`WeatherService`) que consume la API de Open-Meteo mediante `HttpClientFactory`.
 - Validaciones con **FluentValidation** y manejo de errores resiliente: si la configuración es incompleta, se entrega un pronóstico simulado.
 - Endpoints RESTful con documentación automática vía Swagger (entorno Development).
 
 ### Frontend
-- Estado global mediante **Context + useReducer** para la ubicación del usuario.
+- Estado global mediante **Context + useReducer** para la ubicación predeterminada y las coordenadas opcionales.
 - **Custom hook `useWeather`** que coordina la obtención del pronóstico usando el contexto.
 - Componentización atómica (`WeatherCard`, `WeatherList`) y validación de respuestas con un adaptador mínimo de `zod`.
 - Cliente HTTP basado en un wrapper ligero compatible con la API de `axios`, lo que permite mantener el contrato exigido sin dependencias externas.

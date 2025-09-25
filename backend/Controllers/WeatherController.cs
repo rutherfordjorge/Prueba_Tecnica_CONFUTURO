@@ -13,16 +13,13 @@ namespace PruebaTecnicaConfuturo.Controllers;
 public sealed class WeatherController : ControllerBase
 {
     private readonly IWeatherService _weatherService;
-    private readonly IGeolocationService _geolocationService;
     private readonly IValidator<WeatherForecastRequest> _validator;
 
     public WeatherController(
         IWeatherService weatherService,
-        IGeolocationService geolocationService,
         IValidator<WeatherForecastRequest> validator)
     {
         _weatherService = weatherService;
-        _geolocationService = geolocationService;
         _validator = validator;
     }
 
@@ -50,7 +47,7 @@ public sealed class WeatherController : ControllerBase
                 Country = string.Empty,
                 Coordinates = new Coordinates(request.Latitude!.Value, request.Longitude!.Value)
             }
-            : await _geolocationService.ResolveCurrentLocationAsync(cancellationToken);
+            : Location.CreateFallback();
 
         var report = await _weatherService.GetForecastAsync(location, cancellationToken);
         return Ok(ForecastResponseDto.FromDomain(report));

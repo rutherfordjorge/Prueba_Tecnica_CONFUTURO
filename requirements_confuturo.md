@@ -55,7 +55,7 @@ Este documento define los requisitos técnicos completos del proyecto solicitado
 - **Entidades**: `WeatherForecast`, `Location`
 - **Value Objects**: `Coordinates`, `Temperature`
 - **Agregados**: `ForecastReport`
-- **Servicios de Dominio**: `ForecastService`, `GeoService`
+- **Servicios de Dominio**: `ForecastService`
 - **Repositorios (si aplica)**: simulados o mocks en esta prueba
 
 ### 🧼 YAGNI (You Aren’t Gonna Need It)
@@ -73,12 +73,12 @@ Este documento define los requisitos técnicos completos del proyecto solicitado
 
 ### Flujo General
 ```text
-[Cliente] → [Frontend React] → [API .NET Core] → [API OpenWeatherMap / ipgeolocation.io]
+[Cliente] → [Frontend React] → [API .NET Core] → [API Open-Meteo]
 ```
 
 ### Detalles
 - El Frontend **solicita al Backend** la data del clima
-- El Backend **usa HTTPClient** o `Refit` para consultar OpenWeatherMap e IPGeolocation
+- El Backend **usa HTTPClient** o `Refit` para consultar una API meteorológica gratuita (OpenWeatherMap, Open-Meteo, etc.)
 - El Backend retorna al Frontend **una respuesta consolidada y simplificada**
 
 ---
@@ -88,10 +88,6 @@ Este documento define los requisitos técnicos completos del proyecto solicitado
 ### GET /weather/current
 - 📥 Parámetros: implícitos por IP detectada
 - 📤 Devuelve: condiciones actuales + últimos 7 días
-
-### GET /location
-- 📥 Detecta automáticamente desde IP
-- 📤 Devuelve: `{ city, region, lat, lon }`
 
 ---
 
@@ -112,12 +108,10 @@ backend/
 ├── Controllers/
 │   └── WeatherController.cs
 ├── Services/
-│   ├── WeatherService.cs
-│   └── GeolocationService.cs
+│   └── WeatherService.cs
 ├── Models/
 │   └── ForecastDto.cs
 ├── WeatherApi/
-├── GeolocationApi/
 ├── Program.cs
 ├── Startup.cs
 └── PruebaTecnicaConfuturo.csproj
