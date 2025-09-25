@@ -16,9 +16,9 @@ builder.Services.Configure<GeolocationApiOptions>(builder.Configuration.GetSecti
 builder.Services.AddHttpClient(WeatherService.HttpClientName, (sp, client) =>
 {
     var options = sp.GetRequiredService<IOptions<WeatherApiOptions>>().Value;
-    if (!string.IsNullOrWhiteSpace(options.BaseUrl))
+    if (!string.IsNullOrWhiteSpace(options.ForecastBaseUrl))
     {
-        client.BaseAddress = new Uri(options.BaseUrl);
+        client.BaseAddress = new Uri(options.ForecastBaseUrl);
     }
 });
 
