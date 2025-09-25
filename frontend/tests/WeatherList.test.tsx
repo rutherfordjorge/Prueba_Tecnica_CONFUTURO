@@ -25,10 +25,10 @@ const forecastItems: DailyForecast[] = [
 test('WeatherList renders one weather card per forecast item', () => {
   const html = renderToString(<WeatherList items={forecastItems} />)
 
-  const articleMatches = html.match(/<article class=\"weather-card\"/g) ?? []
+  const articleMatches = html.match(/<article class="weather-card"/g) ?? []
   assert.strictEqual(articleMatches.length, forecastItems.length)
 
-  const iconMatches = html.match(/alt=\"Icono del clima\"/g) ?? []
+  const iconMatches = html.match(/alt="Icono del clima"/g) ?? []
   assert.strictEqual(iconMatches.length, 1)
 
   assert.ok(html.includes('aria-live="polite"'))

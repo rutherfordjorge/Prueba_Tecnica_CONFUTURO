@@ -55,7 +55,11 @@ function number(): Schema<number> {
   })
 }
 
-function object<T extends Record<string, Schema<any>>>(shape: T): Schema<{ [K in keyof T]: ReturnType<T[K]['parse']> }> {
+type SchemaShape = Record<string, Schema<unknown>>
+
+type InferShape<T extends SchemaShape> = { [K in keyof T]: ReturnType<T[K]['parse']> }
+
+function object<T extends SchemaShape>(shape: T): Schema<InferShape<T>> {
   return createSchema(input => {
     if (typeof input !== 'object' || input === null) {
       throw new Error('Expected object')
@@ -66,7 +70,7 @@ function object<T extends Record<string, Schema<any>>>(shape: T): Schema<{ [K in
       const schema = shape[key]
       result[key] = schema.parse((input as Record<string, unknown>)[key])
     }
-    return result as { [K in keyof T]: ReturnType<T[K]['parse']> }
+    return result as InferShape<T>
   })
 }
 
@@ -87,4 +91,4 @@ export const z = {
   array
 }
 
-export type infer<T extends Schema<any>> = T extends Schema<infer U> ? U : never
+export type infer<T extends Schema<unknown>> = T extends Schema<infer U> ? U : never
