@@ -1,15 +1,16 @@
 :root {
   color-scheme: light dark;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #0b1120;
+  background-color: #1f2937;
   color: #e5e7eb;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at top, rgba(59, 130, 246, 0.35), transparent 60%),
-    radial-gradient(circle at bottom, rgba(16, 185, 129, 0.25), transparent 70%);
+  background: radial-gradient(circle at top, rgba(148, 163, 184, 0.4), transparent 60%),
+    radial-gradient(circle at bottom, rgba(100, 116, 139, 0.35), transparent 70%),
+    #f3f4f6;
 }
 
 #root {
@@ -34,6 +35,7 @@ body {
 .app__header h1 {
   margin: 0;
   font-size: 2.4rem;
+  color: #374151;
 }
 
 .app__subtitle {
@@ -51,8 +53,8 @@ body {
 .app__button {
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
-  color: white;
+  background: #374151;
+  color: #f9fafb;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
   cursor: pointer;
@@ -61,7 +63,7 @@ body {
 
 .app__button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 10px 20px rgba(55, 65, 81, 0.25);
 }
 
 .app__status {

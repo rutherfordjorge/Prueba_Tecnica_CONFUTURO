@@ -4,14 +4,8 @@ import { useWeather } from './hooks/useWeather'
 import './App.css'
 
 function App() {
-  const { status: locationStatus, location, error: locationError, refetch } = useLocationContext()
+  const { status: locationStatus, error: locationError, refetch } = useLocationContext()
   const { status: weatherStatus, forecast, error: weatherError, refresh } = useWeather()
-
-  const locationParts = location
-    ? [location.city, location.region, location.country].filter((part) =>
-        typeof part === 'string' ? part.trim().length > 0 : Boolean(part)
-      )
-    : []
 
   const isLoading = locationStatus === 'loading' || weatherStatus === 'loading'
   const hasError = locationStatus === 'error' || weatherStatus === 'error'
@@ -21,9 +15,6 @@ function App() {
       <header className="app__header">
         <div>
           <h1>Clima en tu ubicación</h1>
-          {location && locationParts.length > 0 && (
-            <p className="app__subtitle">{locationParts.join(', ')}</p>
-          )}
         </div>
         <div className="app__actions">
           <button type="button" onClick={refetch} className="app__button" aria-label="Actualizar ubicación">
