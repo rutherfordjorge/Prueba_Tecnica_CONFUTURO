@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
-import { fetchLocation, type LocationDto } from '../services/locationService'
+import { createContext, useContext, useMemo, useReducer } from 'react'
+import { fetchLocation, getDefaultLocation, type LocationDto } from '../services/locationService'
 
 type LocationStatus = 'idle' | 'loading' | 'ready' | 'error'
 
@@ -19,7 +19,8 @@ type LocationContextValue = LocationState & {
 }
 
 const initialState: LocationState = {
-  status: 'idle'
+  status: 'ready',
+  location: getDefaultLocation()
 }
 
 function reducer(state: LocationState, action: LocationAction): LocationState {
@@ -40,32 +41,9 @@ const LocationContext = createContext<LocationContextValue | undefined>(undefine
 export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  useEffect(() => {
-    let isMounted = true
-
-    async function load() {
-      dispatch({ type: 'REQUEST' })
-      try {
-        const location = await fetchLocation()
-        if (!isMounted) return
-        dispatch({ type: 'SUCCESS', payload: location })
-      } catch (error) {
-        console.error('Failed to resolve location', error)
-        if (!isMounted) return
-        dispatch({ type: 'FAILURE', error: 'No se pudo obtener la ubicación.' })
-      }
-    }
-
-    load()
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
   const value = useMemo<LocationContextValue>(() => ({
     ...state,
     refetch: async () => {
-      dispatch({ type: 'REQUEST' })
       try {
         const location = await fetchLocation()
         dispatch({ type: 'SUCCESS', payload: location })

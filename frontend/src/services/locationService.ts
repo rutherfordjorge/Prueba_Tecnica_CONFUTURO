@@ -1,20 +1,23 @@
-import { apiClient } from './apiClient'
-import { z, type infer as Infer } from 'zod'
+export type LocationDto = {
+  city: string
+  region?: string
+  country: string
+  latitude: number
+  longitude: number
+}
 
-const locationSchema = z.object({
-  city: z.string(),
-  region: z
-    .string()
-    .nullish()
-    .transform((value) => value ?? undefined),
-  country: z.string(),
-  latitude: z.number(),
-  longitude: z.number()
-})
-
-export type LocationDto = Infer<typeof locationSchema>
+const fallbackLocation: LocationDto = {
+  city: 'Santiago',
+  region: 'Metropolitana',
+  country: 'Chile',
+  latitude: -33.4489,
+  longitude: -70.6693
+}
 
 export async function fetchLocation(): Promise<LocationDto> {
-  const response = await apiClient.get<LocationDto>('/location')
-  return locationSchema.parse(response.data)
+  return { ...fallbackLocation }
+}
+
+export function getDefaultLocation(): LocationDto {
+  return { ...fallbackLocation }
 }
