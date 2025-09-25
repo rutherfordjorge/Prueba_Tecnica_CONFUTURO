@@ -166,9 +166,9 @@ public sealed class WeatherService : IWeatherService
 
     private async Task<IReadOnlyCollection<DailyWeather>> FetchHistoricalAsync(HttpClient client, Location location, CancellationToken cancellationToken)
     {
-        var timezone = string.IsNullOrWhiteSpace(_options.Timezone) ? "auto" : _options.Timezone;
-        var endDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1));
-        var startDate = endDate.AddDays(-6);
+        var timezone = string.IsNullOrWhiteSpace(_options.Timezone) ? "auto" : _options.Timezone        
+        var endDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-5));
+        var startDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1));
 
         var query = new Dictionary<string, string?>
         {
