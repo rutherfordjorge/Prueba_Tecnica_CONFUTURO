@@ -5,8 +5,20 @@ interface WeatherCardProps {
   forecast: DailyForecast
 }
 
+function parseForecastDate(value: string) {
+  const [year, month, day] = value.split('-').map(Number)
+
+  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+    return new Date(value)
+  }
+
+  const date = new Date(year, month - 1, day)
+  date.setHours(0, 0, 0, 0)
+  return date
+}
+
 export function WeatherCard({ forecast }: WeatherCardProps) {
-  const date = new Date(forecast.date)
+  const date = parseForecastDate(forecast.date)
   const formatter = new Intl.DateTimeFormat('es-CL', {
     weekday: 'long',
     month: 'short',

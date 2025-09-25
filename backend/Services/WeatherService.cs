@@ -51,6 +51,8 @@ public sealed class WeatherService : IWeatherService
 
     public const string HttpClientName = "WeatherApi";
 
+    private const int UpcomingForecastDays = 8;
+
     public WeatherService(
         IHttpClientFactory httpClientFactory,
         IOptions<WeatherApiOptions> options,
@@ -109,7 +111,8 @@ public sealed class WeatherService : IWeatherService
             ["latitude"] = location.Coordinates.Latitude.ToString(CultureInfo.InvariantCulture),
             ["longitude"] = location.Coordinates.Longitude.ToString(CultureInfo.InvariantCulture),
             ["timezone"] = string.IsNullOrWhiteSpace(_options.Timezone) ? "auto" : _options.Timezone,
-            ["daily"] = "temperature_2m_max,temperature_2m_min,weathercode"
+            ["daily"] = "temperature_2m_max,temperature_2m_min,weathercode",
+            ["forecast_days"] = UpcomingForecastDays.ToString(CultureInfo.InvariantCulture)
         };
 
         var baseUri = client.BaseAddress ?? new Uri(_options.ForecastBaseUrl!);
@@ -129,7 +132,7 @@ public sealed class WeatherService : IWeatherService
         var weatherCodes = payload.Daily.WeatherCode ?? new List<int?>();
 
         var results = new List<DailyWeather>();
-        var items = Math.Min(7, payload.Daily.Time.Count);
+        var items = Math.Min(UpcomingForecastDays, payload.Daily.Time.Count);
 
         for (var index = 0; index < items; index++)
         {
