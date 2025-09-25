@@ -4,6 +4,8 @@ import { WeatherList } from './components/WeatherList'
 import { useWeather } from './hooks/useWeather'
 import './App.css'
 
+const HISTORICAL_DAYS_LIMIT = 7
+
 const parseDateString = (value: string) => {
   const [year, month, day] = value.split('-').map(Number)
 
@@ -20,9 +22,14 @@ function App() {
   const { status: locationStatus, error: locationError, refetch } = useLocationContext()
   const { status: weatherStatus, forecast, error: weatherError, refresh } = useWeather()
 
-  const { todayForecast, upcomingForecast, historicalForecast } = useMemo(() => {
+  const { todayForecast, upcomingForecast, historicalForecast, historicalDaysDisplayed } = useMemo(() => {
     if (!forecast) {
-      return { todayForecast: undefined, upcomingForecast: [], historicalForecast: [] }
+      return {
+        todayForecast: undefined,
+        upcomingForecast: [],
+        historicalForecast: [],
+        historicalDaysDisplayed: 0
+      }
     }
 
     const today = new Date()
@@ -30,12 +37,6 @@ function App() {
 
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
-
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-
-    const fiveDaysAgo = new Date(today)
-    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5)
 
     const sortByDate = (a: { date: string }, b: { date: string }) =>
       parseDateString(a.date).getTime() - parseDateString(b.date).getTime()
@@ -54,17 +55,15 @@ function App() {
 
     const historicalItems = [...forecast.historical]
       .sort(sortByDate)
-      .filter(item => {
-        const itemDate = parseDateString(item.date)
-        return itemDate <= yesterday && itemDate >= fiveDaysAgo
-      })
+      .filter(item => parseDateString(item.date) < today)
 
-    const limitedHistorical = historicalItems.length > 5 ? historicalItems.slice(-5) : historicalItems
+    const limitedHistorical = historicalItems.slice(-HISTORICAL_DAYS_LIMIT)
 
     return {
       todayForecast: todayItem,
       upcomingForecast: upcomingItems,
-      historicalForecast: limitedHistorical
+      historicalForecast: limitedHistorical,
+      historicalDaysDisplayed: limitedHistorical.length
     }
   }, [forecast])
 
@@ -124,7 +123,7 @@ function App() {
           </section>
           <WeatherList items={upcomingForecast} />
           <section className="app__summary">
-            <h2>Histórico de los últimos 7 días</h2>
+            <h2>Histórico de los últimos {historicalDaysDisplayed} días</h2>
             <p>Datos recopilados para la misma ubicación detectada automáticamente.</p>
           </section>
           <WeatherList items={historicalForecast} />
