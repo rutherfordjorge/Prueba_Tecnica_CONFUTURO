@@ -94,7 +94,11 @@ Prueba_Tecnica_CONFUTURO/
    dotnet restore
    dotnet run
    ```
-3. El servicio expone por defecto los endpoints:
+3. Ejecuta los tests automatizados del backend:
+   ```bash
+   dotnet test
+   ```
+4. El servicio expone por defecto los endpoints:
    - `GET /api/location`
    - `GET /api/weather/forecast?latitude={lat}&longitude={lon}`
 
@@ -111,7 +115,11 @@ Prueba_Tecnica_CONFUTURO/
    npm install
    npm run dev
    ```
-3. La aplicación consume únicamente el backend propio y presenta el pronóstico de 7 días con estados de carga y error.
+3. Ejecuta los tests unitarios del frontend (utilizando el compilador de TypeScript y el runner nativo de Node.js):
+   ```bash
+   npm run test
+   ```
+4. La aplicación consume únicamente el backend propio y presenta el pronóstico de 7 días con estados de carga y error.
 
 ---
 
@@ -132,6 +140,6 @@ Prueba_Tecnica_CONFUTURO/
 ---
 
 ## 🧪 Estrategia de validación
-- **Frontend:** compilación de TypeScript y build de Vite para garantizar integridad.
-- **Backend:** al contar con datos simulados, los controladores pueden probarse sin llaves; en un entorno con SDK de .NET se recomienda ejecutar `dotnet test` o al menos `dotnet build`.
+- **Frontend:** tests unitarios escritos en TypeScript y ejecutados con el `node:test` runner tras compilar con `tsc`, además de la build de Vite.
+- **Backend:** suite de pruebas `xUnit` integrada en la solución para verificar los value objects críticos, ejecutable con `dotnet test`.
 

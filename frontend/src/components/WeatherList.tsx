@@ -1,4 +1,4 @@
-import { WeatherCard } from './WeatherCard'
+import { WeatherCard } from './WeatherCard.js'
 import type { DailyForecast } from '../services/weatherService'
 
 interface WeatherListProps {
