@@ -1,4 +1,4 @@
-import classNames from 'classnames'
+import classNames from '../lib/classnames.js'
 import type { DailyForecast } from '../services/weatherService'
 
 interface WeatherCardProps {
