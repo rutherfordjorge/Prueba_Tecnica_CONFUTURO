@@ -4,13 +4,8 @@
     "target": "ES2023",
     "lib": ["ES2023", "DOM"],
     "module": "ESNext",
-    "types": [],
+    "types": ["node"],
     "skipLibCheck": true,
-    "paths": {
-      "axios": ["./src/lib/axios"],
-      "classnames": ["./src/lib/classnames"],
-      "zod": ["./src/lib/zod"]
-    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",

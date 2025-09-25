@@ -1,16 +1,19 @@
 using FluentValidation;
 using Microsoft.Extensions.Options;
+using Refit;
 using System.Text.Json;
 using PruebaTecnicaConfuturo.Interfaces;
 using PruebaTecnicaConfuturo.Models.Options;
 using PruebaTecnicaConfuturo.Models.Requests;
 using PruebaTecnicaConfuturo.Services;
+using PruebaTecnicaConfuturo.Services.Clients;
 using PruebaTecnicaConfuturo.Validators;
 using PruebaTecnicaConfuturo.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<WeatherApiOptions>(builder.Configuration.GetSection("ExternalApis:Weather"));
+builder.Services.Configure<GeolocationApiOptions>(builder.Configuration.GetSection("ExternalApis:Geolocation"));
 
 builder.Services.AddHttpClient(WeatherService.HttpClientName, (sp, client) =>
 {
@@ -22,10 +25,21 @@ builder.Services.AddHttpClient(WeatherService.HttpClientName, (sp, client) =>
 });
 
 builder.Services.AddScoped<IWeatherService, WeatherService>();
+builder.Services.AddScoped<IGeolocationService, GeolocationService>();
+builder.Services
+    .AddRefitClient<IIpGeolocationApi>()
+    .ConfigureHttpClient((sp, client) =>
+    {
+        var options = sp.GetRequiredService<IOptions<GeolocationApiOptions>>().Value;
+        var baseUrl = options.BaseUrl ?? "https://api.ipgeolocation.io/";
+        client.BaseAddress = new Uri(baseUrl);
+    });
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IValidator<WeatherForecastRequest>, WeatherForecastRequestValidator>();
 builder.Services.AddScoped<ValidationFilter>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddControllers(options =>
 {
