@@ -2,9 +2,14 @@ import { useMemo } from 'react'
 import { useLocationContext } from './context/LocationContext'
 import { WeatherList } from './components/WeatherList'
 import { useWeather } from './hooks/useWeather'
+import { useStaticForecast } from './hooks/useStaticForecast'
 import './App.css'
 
 const HISTORICAL_DAYS_LIMIT = 7
+const BRASILIA_COORDINATES = {
+  latitude: -15.793889,
+  longitude: -47.882778
+}
 
 const parseDateString = (value: string) => {
   const [year, month, day] = value.split('-').map(Number)
@@ -21,6 +26,16 @@ const parseDateString = (value: string) => {
 function App() {
   const { status: locationStatus, error: locationError, refetch } = useLocationContext()
   const { status: weatherStatus, forecast, error: weatherError, refresh } = useWeather()
+  const {
+    status: brasiliaStatus,
+    forecast: brasiliaForecast,
+    error: brasiliaError,
+    refresh: refreshBrasilia
+  } = useStaticForecast({
+    latitude: BRASILIA_COORDINATES.latitude,
+    longitude: BRASILIA_COORDINATES.longitude,
+    errorMessage: 'No se pudo obtener el clima de Brasilia.'
+  })
 
   const { todayForecast, upcomingForecast, historicalForecast, historicalDaysDisplayed } = useMemo(() => {
     if (!forecast) {
@@ -67,6 +82,26 @@ function App() {
     }
   }, [forecast])
 
+  const brasiliaTodayForecast = useMemo(() => {
+    if (!brasiliaForecast) {
+      return undefined
+    }
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const sortByDate = (a: { date: string }, b: { date: string }) =>
+      parseDateString(a.date).getTime() - parseDateString(b.date).getTime()
+
+    const sortedDaily = [...brasiliaForecast.daily].sort(sortByDate)
+
+    return (
+      sortedDaily.find(item => parseDateString(item.date).getTime() === today.getTime()) ??
+      sortedDaily.find(item => parseDateString(item.date).getTime() > today.getTime()) ??
+      sortedDaily.at(0)
+    )
+  }, [brasiliaForecast])
+
   const isLoading = locationStatus === 'loading' || weatherStatus === 'loading'
   const hasError = locationStatus === 'error' || weatherStatus === 'error'
 
@@ -85,6 +120,58 @@ function App() {
           </button>
         </div>
       </header>
+
+      <section className="app__featured" aria-live="polite">
+        <header className="app__featured-header">
+          <div>
+            <h2>Clima en Brasilia, Brasil</h2>
+            {brasiliaTodayForecast && (
+              <p>
+                {new Intl.DateTimeFormat('es-CL', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric'
+                }).format(parseDateString(brasiliaTodayForecast.date))}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            className="app__button"
+            onClick={refreshBrasilia}
+            aria-label="Actualizar pronóstico de Brasilia"
+            disabled={brasiliaStatus === 'loading'}
+          >
+            Actualizar Brasilia
+          </button>
+        </header>
+
+        {brasiliaStatus === 'loading' && (
+          <p className="app__featured-status">Cargando clima de Brasilia...</p>
+        )}
+
+        {brasiliaStatus === 'error' && brasiliaError && (
+          <p className="app__featured-status app__featured-status--error">{brasiliaError}</p>
+        )}
+
+        {brasiliaStatus === 'ready' && brasiliaTodayForecast && brasiliaForecast && (
+          <div className="app__featured-body">
+            <div className="app__featured-temperature">
+              <span className="app__featured-temperature--primary">
+                {brasiliaTodayForecast.temperatureC.toFixed(1)}°C
+              </span>
+              <span className="app__featured-temperature--secondary">
+                {brasiliaTodayForecast.temperatureF.toFixed(1)}°F
+              </span>
+            </div>
+            <p className="app__featured-summary">{brasiliaTodayForecast.summary}</p>
+            <p className="app__featured-location">
+              Latitud: {brasiliaForecast.location.latitude.toFixed(2)} | Longitud:{' '}
+              {brasiliaForecast.location.longitude.toFixed(2)}
+            </p>
+          </div>
+        )}
+      </section>
 
       {isLoading && <p className="app__status">Cargando información del clima...</p>}
       {hasError && <p className="app__status app__status--error">{locationError ?? weatherError}</p>}
